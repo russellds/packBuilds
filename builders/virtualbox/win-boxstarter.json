@@ -1,0 +1,102 @@
+{
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "4096"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--vram",
+          "48"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "2"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--clipboard",
+          "bidirectional"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--draganddrop",
+          "bidirectional"
+        ]
+      ],
+      "output_directory": "./output/{{ user `os_name` }}-win-boxstarter/",
+      "vm_name": "{{ user `os_name` }}-boxstarter",
+      "guest_additions_mode": "attach",
+      "guest_os_type": "{{ user `guest_os_type` }}",
+      "headless": "{{ user `headless` }}",
+      "iso_url": "{{ user `iso_url` }}",
+      "iso_checksum": "{{ user `iso_checksum` }}",
+      "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+      "communicator": "winrm",
+      "winrm_username": "vagrant",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "12h",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "shutdown_timeout": "3h",
+      "floppy_files": [
+        "answer_files/{{ user `os_name` }}/Autounattend.xml",
+        "floppy/winrm.ps1"
+      ],
+      "vrdp_port_min": "5901",
+      "vrdp_port_max": "5901"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "powershell",
+      "script": "scripts/install_oracle_guest_additions.ps1",
+      "environment_vars": [
+        "install_vbox_tools={{user `install_vbox_tools`}}"
+      ],
+      "elevated_user": "vagrant",
+      "elevated_password": "vagrant"
+    },
+    {
+      "type": "windows-restart"
+    },
+    {
+      "script": "scripts/clean_and_scrub.ps1",
+      "type": "powershell",
+      "elevated_password": "vagrant",
+      "elevated_user": "vagrant"
+    },
+    {
+      "type": "powershell",
+      "script": "scripts/save_shutdown_command.ps1"
+    }
+    ],
+    "post-processors": [
+      [
+        {
+            "type": "vagrant",
+            "keep_input_artifact": false,
+            "output": "./output/box/{{.Provider}}-{{user `os_name`}}-boxstarter.box",
+            "vagrantfile_template": "./vagrantfile/vagrantfile-windows.template"
+        }
+      ]
+    ],
+    "variables": {
+      "os_name": "",
+      "headless": "true",
+      "iso_checksum": "",
+      "iso_checksum_type": "",
+      "iso_url": "",
+      "guest_os_type": "",
+      "install_vbox_tools": ""
+    }
+}

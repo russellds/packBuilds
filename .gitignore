@@ -1,0 +1,19 @@
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Project Specific
+.archive/*
+output/*
+packer_cache/
+software/*
+tools/*
+*.bak
+*.box
